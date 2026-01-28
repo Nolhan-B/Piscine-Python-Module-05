@@ -16,7 +16,7 @@ class DataProcessor(ABC):
 
 
 class NumericProcessor(DataProcessor):
-    def process(self, data: List[int]) -> str:
+    def process(self, data: Any) -> str:
         return (
             f"Processed {len(data)} numeric values, "
             f"sum={sum(data)}, avg={sum(data) / len(data):.1f}"
@@ -107,7 +107,7 @@ def main() -> None:
     iter: int = 1
     for p, data in data_set:
         if p.validate(data):
-            print(f"Result {iter}: {p.format_output(p.process(data))}")
+            print(f"Result {iter}: {p.process(data)}")
         iter += 1
 
     print("\nFoundation systems online. Nexus ready for advanced streams.")
