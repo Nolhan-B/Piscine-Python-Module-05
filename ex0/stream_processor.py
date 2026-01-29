@@ -16,84 +16,93 @@ class DataProcessor(ABC):
 
 
 class NumericProcessor(DataProcessor):
-    def process(self, data: Any) -> str:
-        return (
-            f"Processed {len(data)} numeric values, "
-            f"sum={sum(data)}, avg={sum(data) / len(data):.1f}"
-        )
-
     def validate(self, data: Any) -> bool:
+        if not isinstance(data, list) or len(data) == 0:
+            return False
         for e in data:
             if not isinstance(e, int):
                 return False
         return True
 
+    def process(self, data: Any) -> str:
+        try:
+            total = sum(data)
+            avg = total / len(data)
+            return (
+                f"Processed {len(data)} numeric values, "
+                f"sum={total}, avg={avg:.1f}"
+            )
+        except Exception:
+            return "Numeric processing failed"
+
 
 class TextProcessor(DataProcessor):
-    def process(self, data: str) -> str:
-        return (
-            f"Processed text: {len(data)} characters, "
-            f"{len(data.split())} words"
-        )
-
     def validate(self, data: Any) -> bool:
-        for e in data:
-            if not isinstance(e, str):
-                return False
-        return True
+        return isinstance(data, str)
+
+    def process(self, data: Any) -> str:
+        try:
+            return (
+                f"Processed text: {len(data)} characters, "
+                f"{len(data.split())} words"
+            )
+        except Exception:
+            return "Text processing failed"
 
 
 class LogProcessor(DataProcessor):
-    def process(self, data: str) -> str:
-        if "ERROR" in data:
-            lvl, message = data.split(":", 1)
-            return f"[ALERT] ERROR level detected:{message}"
-        if "INFO" in data:
-            lvl, message = data.split(":", 1)
-            return f"[INFO] Info level detected:{message}"
-        return ""
-
     def validate(self, data: Any) -> bool:
         if not isinstance(data, str):
-            print("Error: Non-numeric data found: invalid data")
             return False
-        if "ERROR" in data or "INFO" in data:
-            return True
-        return False
+        return "ERROR:" in data or "INFO:" in data
+
+    def process(self, data: Any) -> str:
+        try:
+            level, message = data.split(":", 1)
+            message = message.strip()
+
+            if level == "ERROR":
+                return f"[ALERT] ERROR level detected: {message}"
+            if level == "INFO":
+                return f"[INFO] INFO level detected: {message}"
+
+            return "Unknown log level"
+        except Exception:
+            return "Log processing failed"
 
 
 def main() -> None:
-    print("== CODE NEXUS - DATA PROCESSOR FOUNDATION ===\n")
+    print("=== CODE NEXUS - DATA PROCESSOR FOUNDATION ===\n")
 
     print("Initializing Numeric Processor...")
     data: List[int] = [1, 2, 3, 4, 5]
-    np: NumericProcessor = NumericProcessor()
+    np = NumericProcessor()
 
     print(f"Processing data: {data}")
-    processed_data: str = np.process(data)
     if np.validate(data):
+        result = np.process(data)
         print("Validation: Numeric data verified")
-        print(np.format_output(processed_data))
+        print(np.format_output(result))
 
     print("\nInitializing Text Processor...")
     data = "Hello Nexus World"
-    tp: TextProcessor = TextProcessor()
+    tp = TextProcessor()
 
     print(f"Processing data: {data}")
-    processed_data = tp.process(data)
     if tp.validate(data):
+        result = tp.process(data)
         print("Validation: Text data verified")
-        print(tp.format_output(processed_data))
+        print(tp.format_output(result))
 
     print("\nInitializing Log Processor...")
     data = "ERROR: Connection timeout"
-    lp: LogProcessor = LogProcessor()
+    lp = LogProcessor()
 
     print(f"Processing data: {data}")
-    processed_data = lp.process(data)
     if lp.validate(data):
+        result = lp.process(data)
         print("Validation: Log entry verified")
-        print(lp.format_output(processed_data))
+        print(tp.format_output(result))
 
     print("\n=== Polymorphic Processing Demo ===\n")
     print("Processing multiple data types through same interface...")
@@ -104,11 +113,11 @@ def main() -> None:
         (lp, "INFO: System ready"),
     ]
 
-    iter: int = 1
-    for p, data in data_set:
-        if p.validate(data):
-            print(f"Result {iter}: {p.process(data)}")
-        iter += 1
+    i = 1
+    for processor, data in data_set:
+        if processor.validate(data):
+            print(f"Result {i}: {processor.process(data)}")
+        i += 1
 
     print("\nFoundation systems online. Nexus ready for advanced streams.")
 
