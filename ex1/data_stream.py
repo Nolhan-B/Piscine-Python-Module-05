@@ -207,13 +207,17 @@ def main() -> None:
 
     print("\nBatch 1 Results:")
     processor.process_all(batch_data)
-    
+
     labels = ["Sensor", "Transaction", "Event"]
     counts = [2, 4, 3]
-    
+    units = {
+        "Sensor": "readings",
+        "Transaction": "operations",
+    }
+
     for label, count in zip(labels, counts):
-        print(f"- {label} data: {count} "
-              f"{'readings' if label == 'Sensor' else 'operations' if label == 'Transaction' else 'events'} processed")
+        unit = units.get(label, "events")
+        print(f"- {label} data: {count} {unit} processed")
 
     print("\nStream filtering active: High-priority data only")
 
