@@ -17,16 +17,13 @@ class DataProcessor(ABC):
 
 class NumericProcessor(DataProcessor):
     def process(self, data: Any) -> str:
-        return (
-            f"Processed {len(data)} numeric values, "
-            f"sum={sum(data)}, avg={sum(data) / len(data):.1f}"
-        )
+        return (f"Processed {len(data)} numeric values, "
+                f"sum={sum(data)}, avg={sum(data) / len(data):.1f}")
 
     def validate(self, data: Any) -> bool:
-        for e in data:
-            if not isinstance(e, int):
-                return False
-        return True
+        if not isinstance(data, list):
+            return False
+        return all(isinstance(e, (int, float)) for e in data)
 
 
 class TextProcessor(DataProcessor):
@@ -37,10 +34,7 @@ class TextProcessor(DataProcessor):
         )
 
     def validate(self, data: Any) -> bool:
-        for e in data:
-            if not isinstance(e, str):
-                return False
-        return True
+        return isinstance(data, str)
 
 
 class LogProcessor(DataProcessor):
