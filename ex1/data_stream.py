@@ -120,6 +120,7 @@ class TransactionStream(DataStream):
                                 amount = int(transaction.split(prefix)[1])
                                 if amount > 100:
                                     large.append(transaction)
+                                    break
                             except (ValueError, IndexError):
                                 pass
             return large
@@ -143,9 +144,11 @@ class EventStream(DataStream):
         )
         self.error_count += batch_errors
 
+        error_text = "error" if batch_errors == 1 else "errors"
+
         return (
             f"Event analysis: {len(data_batch)} events, "
-            f"{batch_errors} error detected"
+            f"{batch_errors} {error_text} detected"
         )
 
 
@@ -227,9 +230,11 @@ def main() -> None:
     trans_filter_data = ["buy:150", "sell:200", "buy:50"]
     trans_filtered = trans.filter_data(trans_filter_data, "high-priority")
 
+    trans_text = "transaction" if len(trans_filtered) == 1 else "transactions"
+
     print(
         f"Filtered results: {len(sensor_filtered)} critical sensor alerts,"
-        f" {len(trans_filtered)} large transaction"
+        f" {len(trans_filtered)} large {trans_text}"
     )
 
     print()

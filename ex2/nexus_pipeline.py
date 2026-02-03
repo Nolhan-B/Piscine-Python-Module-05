@@ -20,7 +20,7 @@ class TransformStage:
             transformed["_metadata_added"] = True
             return transformed
         elif isinstance(data, str):
-            return data.strip().upper()
+            return data.strip()
         elif isinstance(data, list):
             return [float(item) if isinstance(item, (int, float))
                     else item for item in data]
@@ -45,10 +45,10 @@ class ProcessingPipeline(ABC):
 
 
 class JSONAdapter(ProcessingPipeline):
-    def __init__(self, pipeline_id: str):
+    def __init__(self, pipeline_id: str) -> None:
         super().__init__()
-        self.pipeline_id = pipeline_id
-        self.format_type = "JSON"
+        self.pipeline_id: str = pipeline_id
+        self.format_type: str = "JSON"
 
     def process(self, data: Any) -> Union[str, Any]:
         result = data
@@ -66,18 +66,18 @@ class JSONAdapter(ProcessingPipeline):
 
 
 class CSVAdapter(ProcessingPipeline):
-    def __init__(self, pipeline_id: str):
+    def __init__(self, pipeline_id: str) -> None:
         super().__init__()
-        self.pipeline_id = pipeline_id
-        self.format_type = "CSV"
+        self.pipeline_id: str = pipeline_id
+        self.format_type: str = "CSV"
 
     def process(self, data: Any) -> Union[str, Any]:
         result = data
         for stage in self.stages:
             result = stage.process(result)
 
-        if isinstance(data, str):
-            lines = data.strip().split('\n')
+        if isinstance(result, str):
+            lines = result.strip().split('\n')
             if lines:
                 data_rows = len(lines) - 1
                 return (f"User activity logged: "
@@ -86,10 +86,10 @@ class CSVAdapter(ProcessingPipeline):
 
 
 class StreamAdapter(ProcessingPipeline):
-    def __init__(self, pipeline_id: str):
+    def __init__(self, pipeline_id: str) -> None:
         super().__init__()
-        self.pipeline_id = pipeline_id
-        self.format_type = "Stream"
+        self.pipeline_id: str = pipeline_id
+        self.format_type: str = "Stream"
 
     def process(self, data: Any) -> Union[str, Any]:
         result = data
@@ -98,10 +98,11 @@ class StreamAdapter(ProcessingPipeline):
 
         if isinstance(result, list):
             numeric = all(isinstance(x, (int, float)) for x in result)
-            total = sum(result) if numeric else 0
-            avg = total / len(result) if len(result) > 0 else 0
-            return (f"Stream summary: {len(result)} readings, "
-                    f"avg: {avg:.1f}°C")
+            if numeric and len(result) > 0:
+                total = sum(result)
+                avg = total / len(result)
+                return (f"Stream summary: {len(result)} readings, "
+                        f"avg: {avg:.1f}°C")
         return str(result)
 
 
