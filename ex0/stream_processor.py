@@ -41,15 +41,14 @@ class LogProcessor(DataProcessor):
     def process(self, data: str) -> str:
         if "ERROR" in data:
             lvl, message = data.split(":", 1)
-            return f"[ALERT] ERROR level detected:{message}"
+            return f"[ALERT] {lvl} level detected:{message}"
         if "INFO" in data:
             lvl, message = data.split(":", 1)
-            return f"[INFO] Info level detected:{message}"
+            return f"[{lvl}] {lvl} level detected:{message}"
         return ""
 
     def validate(self, data: Any) -> bool:
         if not isinstance(data, str):
-            print("Error: Non-numeric data found: invalid data")
             return False
         if "ERROR" in data or "INFO" in data:
             return True
@@ -57,37 +56,34 @@ class LogProcessor(DataProcessor):
 
 
 def main() -> None:
-    print("== CODE NEXUS - DATA PROCESSOR FOUNDATION ===\n")
+    print("=== CODE NEXUS - DATA PROCESSOR FOUNDATION ===\n")
 
     print("Initializing Numeric Processor...")
-    data: List[int] = [1, 2, 3, 4, 5]
+    numeric_data: List[int] = [1, 2, 3, 4, 5]
     np: NumericProcessor = NumericProcessor()
-
-    print(f"Processing data: {data}")
-    processed_data: str = np.process(data)
-    if np.validate(data):
+    print(f"Processing data: {numeric_data}")
+    if np.validate(numeric_data):
+        processed_data: str = np.process(numeric_data)
         print("Validation: Numeric data verified")
         print(np.format_output(processed_data))
 
     print("\nInitializing Text Processor...")
-    data = "Hello Nexus World"
+    text_data: str = "Hello Nexus World"
     tp: TextProcessor = TextProcessor()
-
-    print(f"Processing data: {data}")
-    processed_data = tp.process(data)
-    if tp.validate(data):
+    print(f'Processing data: "{text_data}"')
+    if tp.validate(text_data):
+        processed_data = tp.process(text_data)
         print("Validation: Text data verified")
         print(tp.format_output(processed_data))
 
     print("\nInitializing Log Processor...")
-    data = "ERROR: Connection timeout"
+    log_data: str = "ERROR: Connection timeout"
     lp: LogProcessor = LogProcessor()
-
-    print(f"Processing data: {data}")
-    processed_data = lp.process(data)
-    if lp.validate(data):
+    print(f'Processing data: "{log_data}"')
+    if lp.validate(log_data):
+        processed_data = lp.process(log_data)
         print("Validation: Log entry verified")
-        print(lp.format_output(processed_data))
+        print(np.format_output(processed_data))
 
     print("\n=== Polymorphic Processing Demo ===\n")
     print("Processing multiple data types through same interface...")
@@ -98,11 +94,11 @@ def main() -> None:
         (lp, "INFO: System ready"),
     ]
 
-    iter: int = 1
-    for p, data in data_set:
-        if p.validate(data):
-            print(f"Result {iter}: {p.process(data)}")
-        iter += 1
+    idx: int = 1
+    for processor, data in data_set:
+        if processor.validate(data):
+            print(f"Result {idx}: {processor.process(data)}")
+            idx += 1
 
     print("\nFoundation systems online. Nexus ready for advanced streams.")
 
